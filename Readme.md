@@ -15,4 +15,4 @@ If you are using a Particle (Spark) Core uncomment the Spark.sleep(1) at the end
 
 Photon
 ------
-If you are using a Particle Photon uncomment System.sleep(2)
+If you are using a Particle Photon uncomment System.sleep(2) - but not yet, a bug in the firmware kills the WiFi so leave it commented for now!
