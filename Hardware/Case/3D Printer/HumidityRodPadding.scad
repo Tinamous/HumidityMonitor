@@ -11,7 +11,7 @@ partitionWidth = 3; // 3mm acrylic
 
 // Overall size 
 // make 1/2 width to allow for one either side
-width = (spoolWidth - ((numberOfSpools+1) * partitionWidth)) / 2;
+width = 5; //((spoolWidth - ((numberOfSpools+1) * partitionWidth)) / 2) /2;
 outerRadius = 20; 
 innerHoleRadius = 11;
 
