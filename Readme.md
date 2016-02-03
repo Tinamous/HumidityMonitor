@@ -50,8 +50,6 @@ JP3 or JP4 are used for the HTU21 sensor. SparkFun and eBay boards have swapped 
 * JP3 is for the eBay version
 * JP4 is for SparkFun version.
 
-
-
 Build using build.particle.io, see source folder.
 
 
