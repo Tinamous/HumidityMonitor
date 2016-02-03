@@ -2,61 +2,70 @@
 // Filament storage humidity monitor
 // **********************************************************************
 
+// If you are pasting this into build.particle.io you will need to manually
+// add the HTU21D library.
+
 // This #include statement was automatically added by the Spark IDE.
 #include "HTU21D/HTU21D.h"
 
-int ledSampling = D2; 
-int fanPulseIn = D4; // Max pin for Core intterupt
-int fanControl  = D7; 
+// Version 1 (PlaFilamentBox & FilamentBox2)
+//int fanPulseIn = D4;
+//int fanControl  = D7; 
+
+// Version 2 (board 0.2) (with the buzzer) (AbsFilamentBox & LooseFilamentBox)
+int fanPulseIn = D4;
+int fanControl  = D3;
+int buzzer = D2;
 
 // Temperature and humidity
 HTU21D humiditySensor;
 
-// Spark variables for tracking humidity and temperature
+// Public exposed  variables for tracking humidity and temperature
 double humidity = 0;
 double temperature = 0;
 int faultCode = 0;
 int fanSpeed = 0; // percentage
-int fanOverrideSpeed = 0; // User requested fan speed. Overrides auto speed.
 int fanPulsesPerInterval = 0; // Non volatile int
 
+// Public exposed methods
 int setFanOnAt(String level);
 int fanOn(String command);
 int fanOff(String command);
-int reset(String command);
+int resetPhoton(String command);
 
+// Default, run the fan when humidity > 20%
 int fanOnAtHumidityLevel = 20;
 
 // Count of fan pulses
 volatile int fanPulseCount = 0;
 
+bool highHumidity = false;
+int publishCount = 0;
+
 
 void setup() {
-    pinMode(ledSampling, OUTPUT);
     pinMode(fanPulseIn, INPUT_PULLUP);
     pinMode(fanControl, OUTPUT);
-    digitalWrite(ledSampling, LOW);
     digitalWrite(fanControl, LOW);
     
     attachInterrupt(fanPulseIn, fanPulse, FALLING);
       
-    Spark.variable("humidity", &humidity, DOUBLE);
-    Spark.variable("temperature", &temperature, DOUBLE);
-    Spark.variable("faultCode", &faultCode, INT);
-    Spark.variable("fanSpeed", &fanSpeed, INT);
-    Spark.variable("fanPulses", &fanPulsesPerInterval, INT);
-    //Spark.variable("fanOnAt", &fanOnAtHumidityLevel, INT);
+    Particle.variable("humidity", &humidity, DOUBLE);
+    Particle.variable("temperature", &temperature, DOUBLE);
+    Particle.variable("faultCode", &faultCode, INT);
+    Particle.variable("fanPulses", &fanPulsesPerInterval, INT);
+    Particle.variable("fanOnAt", &fanOnAtHumidityLevel, INT);
     
     // register the cloud function
-    Spark.function("setFanOnAt", setFanOnAt);
-    Spark.function("fanOn", fanOn);
-    Spark.function("fanOff", fanOff);
-    Spark.function("reset", reset);
+    Particle.function("setFanOnAt", setFanOnAt);
+    Particle.function("fanOn", fanOn);
+    Particle.function("fanOff", fanOff);
+    Particle.function("reset", resetPhoton);
 
     // Take control of the spark LED and make it dimmer as it's very
     // bright by default.
     RGB.control(true);
-    RGB.brightness(10);
+    RGB.brightness(100);
     
     // Set blue to show initializing.
     RGB.color(0, 0, 255);
@@ -71,31 +80,30 @@ void setup() {
     // Initialize Temperature and humidity
     if (!humiditySensor.begin()) {
         RGB.color(255, 0, 00);
-        Spark.publish("Status", "Humidity Sensor setup failed.");
+        Particle.publish("Status", "Humidity Sensor setup failed.");
     }
     
-    //delay(1000);
-    Spark.publish("Status", "Setup complete.");
+    Particle.publish("Status", "Setup complete. V2.1.0");
     RGB.color(0, 0, 0);
-    delay(2000);
+    delay(1000);
 }
 
 void loop() {
     
-    digitalWrite(ledSampling, HIGH);
-    RGB.color(0, 0, 125);
-    //Spark.publish("Reading", "Reading...");
-    //delay(100);
+    // Indicate blue for reading.
+    RGB.color(0, 0, 255);
     
     // Reset the fault code before measuring.
     faultCode = 0;
+    
+    // Read measurements
     readHumidity();
-    // Small delay before re-reading to see if this helps resolve the errors.
-    delay(250);
     readTemperature();
     
-    RGB.color(0, 0, 0);
-    digitalWrite(ledSampling, LOW);
+    // Update control/output based on measurements
+    updateFanControl();
+    setLedForHumidityLevel();
+    updateTinamous();
     
     // Store the fan pulses during this loop
     fanPulsesPerInterval = fanPulseCount;
@@ -108,22 +116,51 @@ void loop() {
     // Core:
     // Spark.sleep(1);
     // Sleep for x seconds.
-    delay(15000);
+    delay(10000);
 } 
+
+void updateTinamous() {
+    // Only publish the 
+    if (humidity > fanOnAtHumidityLevel && !highHumidity) {
+        highHumidity = true;
+        Particle.publish("Status", "High Humidity");
+    }
+    
+    if (humidity < fanOnAtHumidityLevel) {
+        highHumidity = false;
+    }
+    
+    // Every minute.
+    if (publishCount >= 0) {
+        Particle.publish("senml", "{'e': [{'n':'Humidity', 'v':" + String(humidity) + "},{'n':'temperature','v':" + String(temperature) + "}]}");
+        publishCount = 0;
+    }
+    publishCount++;
+}
+
+
+void setLedForHumidityLevel() {
+    // If > 30, Red - very high humidity
+    // if > 20, higher than wanted
+    // Otherwise Green - all is well...
+    if (humidity > 30) {
+        RGB.color(255, 0, 0);
+        RGB.brightness(100);
+    } else if (humidity > 20) {
+        RGB.color(255, 255, 0);
+        RGB.brightness(100);
+    } else {
+        RGB.color(0, 255, 0);
+        RGB.brightness(50);
+    }
+}
 
 void readHumidity() {
     float h = humiditySensor.readHumidity();
     if (h < 100) {
         humidity = (double)h;
-        Spark.publish("Humidity", "Measured humidity as: " + String(h));
-        updateControl(humidity);
     } else {
         faultCode = h;
-        Spark.publish("Error", "Error reading humidity. Reported: " + String(h));
-        RGB.color(255, 0, 0);
-        // Force a delay to try and help I2C
-        delay(3000);
-        //reset("Humidity Fault");
     }
 }
 
@@ -131,44 +168,40 @@ void readTemperature() {
     float t = humiditySensor.readTemperature();
     if (t<100) {
         temperature = (double)t;
-        Spark.publish("Temperature", "Measured temperature as: " + String(temperature));
     } else {
         faultCode = t;
-        Spark.publish("Error", "Error reading temperature. Reported: " + String(t));
-        RGB.color(255, 0, 0);
-        // Force a delay to try and help I2C
-        delay(3000);
-        //reset("Temperature Fault");
     }
 }
 
-void updateControl(float humidity) {
+void updateFanControl() {
     // Use the global fanSpeed variable.
     
     int newFanOnCount = fanSpeed;
-    
-    if (humidity < fanOnAtHumidityLevel) {
+   
+    if (humidity > 40 ) {
+        // If measured humidity is above 40 then don't run the fan as the unit is most likelu in free air
+        // and this will ruin the gel pack.
+        newFanOnCount = 0;
+        
+        // The humidity will gradually drop once the unit is in a controlled environment
+        // and then the fan can resume 
+        Particle.publish("Status", "Humidity > 40%. Stopping fan to prevent saturating gel");
+    } else if (humidity < fanOnAtHumidityLevel) {
         // Humidity is in range. Do nothing
-        RGB.color(0, 255, 0);
+        //RGB.color(0, 255, 0);
         // Humidity is below required level
         // decrease the number of itterations the fan needs to be on for.
         newFanOnCount--; 
-    } else if (humidity < 40) { // Do we need this settabke?
-        // Humidity is high so put fan on, but low.
-        RGB.color(255, 128, 0);
-        // Run the fan for 4 itterations of the main loop (about 1 minute).
-        // on top of how long it takes to get below thresold.
-        newFanOnCount = 4;
-        // TODO: Turn the fan on.
     } else  {
-        // humidity is very high, fan on full speed.
-        RGB.color(255, 0, 128);
+        // humidity is  high, switch the fan on for 2 minutes
+        //RGB.color(255, 0, 128);
         newFanOnCount = 12;
-        //fanSpeed = 100;
     }
     
-    if (newFanOnCount < 0) {
-        newFanOnCount = 0;
+    // Every good cycle causes count to be decremented. When 0 or less fan is switched off.
+    // 10 mins off, 2 mins on.
+    if (newFanOnCount < -60) {
+        newFanOnCount = 12;
     }
     
     setFan(newFanOnCount);
@@ -178,34 +211,33 @@ void updateControl(float humidity) {
 int setFanOnAt(String level) {
     // This relies on level being a single numeric value.
     fanOnAtHumidityLevel = level.toInt();
-    Spark.publish("Status", "Setting fan trigger humidity level at: " + String(fanOnAtHumidityLevel) + "%, request was : '" + level + "' ");
+    Particle.publish("Status", "Setting fan trigger humidity level at: " + String(fanOnAtHumidityLevel) + "%, request was : '" + level + "' ");
     return 0;
 }
 
 // Particle Method
 int fanOn(String command)
 {
-    Spark.publish("Status", "Switching fan on to 100%.");
-    fanOverrideSpeed = 100;
-    // On for 10 mins (4 itterations per min)
-    setFan(10 * 4);
-    return fanOverrideSpeed;
+    Particle.publish("Status", "Switching fan on for 10 minuites.");
+    // On for 10 mins (6 itterations per min)
+    setFan(10 * 6);
+    return 10*6;
 }
 
 // Particle Method
 int fanOff(String command)
 {
-    Spark.publish("Status", "Switching fan off.");
-    fanOverrideSpeed = 0;
+    Particle.publish("Status", "Switching fan off.");
+    
     // On for 0 itterations
     setFan(0);
-    return fanOverrideSpeed;
+    return 0;
 }
 
 // Particle Method
-int reset(String args) {
+int resetPhoton(String args) {
     // Photon only?
-    Spark.publish("Status", "I'm going to reset in 10 seconds. Reason: " + args);
+    Particle.publish("Status", "I'm going to reset in 10 seconds. Reason: " + args);
     delay(10000);
     System.reset();
     return 0;
@@ -215,10 +247,6 @@ int reset(String args) {
 void setFan(int fanCount) {
     
     int newfanSpeed = fanCount; //max(speed, fanOverrideSpeed);
-    
-    if (newfanSpeed != fanSpeed) {
-        Spark.publish("Status", "Setting fan speed to:" + String(newfanSpeed));
-    }
     
     // Store in the Particle variable
     fanSpeed = newfanSpeed;
