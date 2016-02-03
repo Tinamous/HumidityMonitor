@@ -25,12 +25,13 @@ Power connectors were sourced from eBay (http://www.ebay.co.uk/itm/PLUGZ2GO-2-1M
 
 Alternativly power connection may be done from the side of the lid by running the power cable out of either top or bottom gel case holes, this would allow the boxes to be stacked, although it makes it less obvious theirs a cable connected so care needs to be taken.
 
-
 #2 Laser Cut Acrylic Gel Case
 -----------------------------
-5mm clear acrylic cut as detailed: 
+5mm clear acrylic cut as detailed in Hardware\Case\LaserCut
 
 (You can use another colour obviously but the clear is cheaper and allows the self indicating gel to be seen).
+
+The case contains a 40mm fan. A standard 3 pin PC fan should be used with a filter to prevent silica gel getting in to it.
 
 
 #3 Humidity Monitor.
@@ -51,6 +52,10 @@ JP3 or JP4 are used for the HTU21 sensor. SparkFun and eBay boards have swapped 
 * JP4 is for SparkFun version.
 
 Build using build.particle.io, see source folder.
+
+A 12V power supply us needed capable of supplying upto 500mA (depends on the fan).
+
+If a 5V fan is used a 5V PSU can be used and the onboard regulator not fitted, instead connecting the Vin to VOut holes with a piece of wire.
 
 
 #4 Self indicating silica gel
