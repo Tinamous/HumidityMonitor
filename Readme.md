@@ -1,5 +1,5 @@
-3D Printer Filament Humidity Controlled Storage Box
-===================================================
+3D Printer Filament Humidity Controlled Storage
+===============================================
 
 Comprises of:
 
