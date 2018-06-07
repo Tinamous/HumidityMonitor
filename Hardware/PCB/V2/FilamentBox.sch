@@ -9172,7 +9172,11 @@ Source: &lt;a href="http://www.farnell.com/datasheets/13482.pdf"&gt;Data sheet&l
 <part name="R6" library="SparkFun-Resistors" deviceset="RESISTOR" device="0805-RES" value="1k5"/>
 <part name="R7" library="SparkFun-Resistors" deviceset="RESISTOR" device="0805-RES" value="1k5"/>
 <part name="GND5" library="SparkFun-Aesthetics" deviceset="GND" device=""/>
-<part name="F1" library="switch-raychem" deviceset="SMD*F" device="/33" technology="100"/>
+<part name="F1" library="switch-raychem" deviceset="SMD*F" device="/33" technology="100">
+<attribute name="FARNELL" value="1822224"/>
+<attribute name="MFG" value="LITTLEFUSE"/>
+<attribute name="MFGPART" value="2920L075DR"/>
+</part>
 <part name="D7" library="SparkFun-LED" deviceset="LED" device="1206-BOTTOM" value="Red"/>
 <part name="D8" library="SparkFun-LED" deviceset="LED" device="1206-BOTTOM" value="Yellow"/>
 <part name="LOGO1" library="Spark" deviceset="OSHW-LOGO" device="L"/>
@@ -9218,7 +9222,7 @@ For 12V fan use 12V Vin and fit regulator</text>
 <text x="2.54" y="114.3" size="1.778" layer="97">Photon Controller</text>
 <text x="190.5" y="114.3" size="1.778" layer="97">Humidity Sensor</text>
 <text x="236.22" y="17.78" size="1.778" layer="97">2.04</text>
-<text x="165.1" y="20.32" size="1.778" layer="97">S.Harrison</text>
+<text x="168.402" y="21.844" size="1.778" layer="97">S.Harrison</text>
 <wire x1="0" y1="152.4" x2="66.04" y2="152.4" width="0.1524" layer="97"/>
 <wire x1="66.04" y1="152.4" x2="66.04" y2="119.38" width="0.1524" layer="97"/>
 <wire x1="66.04" y1="119.38" x2="0" y2="119.38" width="0.1524" layer="97"/>
@@ -9301,10 +9305,14 @@ For 12V fan use 12V Vin and fit regulator</text>
 <instance part="R6" gate="G$1" x="40.64" y="142.24" rot="R180"/>
 <instance part="R7" gate="G$1" x="40.64" y="129.54" rot="R180"/>
 <instance part="GND5" gate="1" x="58.42" y="124.46"/>
-<instance part="F1" gate="G$1" x="33.02" y="180.34"/>
+<instance part="F1" gate="G$1" x="33.02" y="180.34">
+<attribute name="FARNELL" x="33.02" y="180.34" size="1.27" layer="96" display="off"/>
+<attribute name="MFG" x="33.02" y="180.34" size="1.778" layer="96" display="off"/>
+<attribute name="MFGPART" x="33.02" y="180.34" size="1.778" layer="96" display="off"/>
+</instance>
 <instance part="D7" gate="G$1" x="50.8" y="142.24" rot="R90"/>
 <instance part="D8" gate="G$1" x="50.8" y="129.54" rot="R90"/>
-<instance part="LOGO1" gate="G$1" x="231.14" y="68.58"/>
+<instance part="LOGO1" gate="G$1" x="228.6" y="71.12"/>
 </instances>
 <busses>
 </busses>

@@ -1012,6 +1012,9 @@ Source: &lt;a href="http://www.farnell.com/datasheets/13482.pdf"&gt;Data sheet&l
 </element>
 <element name="F1" library="switch-raychem" package="SMD050F" value="SMD100F/33" x="15.5575" y="39.0525" smashed="yes" rot="R270">
 <attribute name="NAME" x="14.7339" y="38.0728" size="1.27" layer="25"/>
+<attribute name="FARNELL" value="1822224" x="15.5575" y="39.0525" size="1.778" layer="27" rot="R270" display="off"/>
+<attribute name="MFG" value="LITTLEFUSE" x="15.5575" y="39.0525" size="1.778" layer="27" rot="R270" display="off"/>
+<attribute name="MFGPART" value="2920L075DR" x="15.5575" y="39.0525" size="1.778" layer="27" rot="R270" display="off"/>
 </element>
 <element name="D7" library="SparkFun-LED" package="LED-1206-BOTTOM" value="Red" x="31.4325" y="32.0675" smashed="yes" rot="R180">
 <attribute name="VALUE" x="33.02" y="35.8775" size="1.27" layer="27" rot="R180"/>
