@@ -12,3 +12,41 @@ Notes:
 * Do not use photon USB B connector to provide 5V for fan, it will not supply the full 5v and may not have PCB traces strong enough for the fan current.
 
 Untested at this time. Awaiting PCBs.
+
+
+BOM:
+
+All 0805 unless specified
+
+F1 - Fuse Farnell 1822224
+
+D1,D2 - IN4148W (2x)
+D4 - MBRA140
+D3 - Green Reverse LED
+D7 - Red Reverse LED
+D8 - Yellow Reverse LED
+
+R1,R2 - 10k (2x)
+R3 - 100k
+R4 - 180R
+R5,R6,R7 - 1k5 (3x)
+
+Q1 - BC817
+Q2 - NXP2301
+
+C1 - 1.0uF 
+C4 - 0.1 25V
+C2,C5 - 0.1uF (x)
+
+
+SG1 - Buzzer (Farnell: 2098836)
+
+JP1 - 2 Pin Molex + Header + 2.1MM DC Jack 973-1148
+JP2 - 3 Pin Moxel + 3 wire 40mm fan 9731156
+
+IC1 - 7805 equivelant
+JP3 - HTU21D equv
+U3 - Photon (needs 2x 18Pin headers)
+
+PCB Spacers (4x)
+M3 Machine Screws (8x)
